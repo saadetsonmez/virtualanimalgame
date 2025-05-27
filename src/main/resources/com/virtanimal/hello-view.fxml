@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+<StackPane fx:controller="com.virtanimal.Controller"
+           xmlns:fx="http://javafx.com/fxml"
+           stylesheets="@style.css"
+           styleClass="root">
+  <!-- 🐾 Arka plan ve pet görseli -->
+  <ImageView fx:id="petImageView"
+             preserveRatio="true"
+             fitWidth="800"
+             fitHeight="600"
+             pickOnBounds="true" />
+  <!-- 👁 Göz katmanı -->
+  <Pane fx:id="eyeLayer" pickOnBounds="false" mouseTransparent="true"
+        style="-fx-padding: 10;" />
+
+  <!-- 🐶 Hayvan adı ve barlar -->
+  <VBox alignment="TOP_CENTER" StackPane.alignment="TOP_CENTER">
+    <Label fx:id="petNameLabel" styleClass="pet-name-label" text="Mustafa" />
+    <HBox styleClass="top-bar-container">
+      <VBox styleClass="bar-label-container">
+        <Label text="Hunger" />
+        <AnchorPane prefWidth="180" prefHeight="18">
+          <Rectangle fx:id="hungerBarBackground" width="180" height="18" fill="#cccccc" />
+          <Rectangle fx:id="hungerBar" height="18" fill="green" AnchorPane.leftAnchor="0" />
+        </AnchorPane>
+      </VBox>
+      <VBox styleClass="bar-label-container">
+        <Label text="Fun" />
+        <AnchorPane prefWidth="180" prefHeight="18">
+          <Rectangle fx:id="funBarBackground" width="180" height="18" fill="#cccccc" />
+          <Rectangle fx:id="funBar" height="18" fill="blue" AnchorPane.leftAnchor="0" />
+        </AnchorPane>
+      </VBox>
+    </HBox>
+  </VBox>
+  <!-- 😺 Ruh hali etiketi -->
+  <Label fx:id="lblMood" id="moodLabel" text="Mood: happy" StackPane.alignment="BOTTOM_CENTER" />
+  <!-- 🎮 Oyuncaklar ve yiyecekler -->
+  <BorderPane maxWidth="Infinity" maxHeight="Infinity">
+    <VBox fx:id="bottomPanel" alignment="BOTTOM_CENTER" BorderPane.alignment="BOTTOM_CENTER" spacing="15">
+      <Label fx:id="lblStatus" />
+    </VBox>
+    <left>
+      <VBox alignment="CENTER_LEFT" BorderPane.alignment="CENTER_LEFT">
+        <ImageView fx:id="toy" fitWidth="64" fitHeight="64" pickOnBounds="true" />
+        <ImageView fx:id="ball" fitWidth="64" fitHeight="64" pickOnBounds="true" />
+      </VBox>
+    </left>
+    <right>
+      <VBox alignment="CENTER_RIGHT" BorderPane.alignment="CENTER_RIGHT">
+        <ImageView fx:id="food1" fitWidth="64" fitHeight="64" pickOnBounds="true" />
+        <ImageView fx:id="food2" fitWidth="64" fitHeight="64" pickOnBounds="true" />
+        <ImageView fx:id="food3" fitWidth="64" fitHeight="64" pickOnBounds="true" />
+      </VBox>
+    </right>
+  </BorderPane>
+
+  <!-- 🚪 LOGOUT BUTTON - EN ÜSTTE! -->
+  <Button fx:id="logoutButton"
+          onAction="#handleLogout"
+          StackPane.alignment="TOP_LEFT"
+          prefWidth="50"
+          prefHeight="50"
+          style="-fx-background-color: transparent;">
+    <graphic>
+      <ImageView fx:id="logoutImageView" fitWidth="30" fitHeight="30" preserveRatio="true" />
+    </graphic>
+  </Button>
+
+</StackPane>
