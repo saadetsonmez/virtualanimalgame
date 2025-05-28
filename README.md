@@ -57,7 +57,7 @@ src/
 ### Using IntelliJ IDEA (Recommended)
 1. Clone this repo:
    ```bash
-   git clone https://github.com/your-username/virtualanimalgame.git
+   git clone https://github.com/saadetsonmez/virtualanimalgame.git
    cd virtualanimalgame
 2. Open the project in IntelliJ IDEA.
 
