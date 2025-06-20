@@ -11,13 +11,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.application.Platform;
 
 import com.utils.BackGround;
-import com.utils.Center;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.*;
 import java.util.Optional;
@@ -26,8 +25,6 @@ public class LoginController {
 
     @FXML private AnchorPane loginPage;
     @FXML private ImageView backgroundImage;
-    @FXML private Label usernameLabel;
-    @FXML private Label passwordLabel;
     @FXML private TextField usernameField;
     @FXML private TextField passwordField;
     @FXML private Button logbackbtn;
@@ -35,14 +32,11 @@ public class LoginController {
 
     private Stage stage;
     private Scene scene;
-    private final BackGround backGround = new BackGround();
-    private static final String FILE_PATH = "users.json";
+    private static final String FILE_PATH = "User.json";
     private static final String PET_FILE_PATH = "UserManager.json";
-
     @FXML
     public void initialize() {
-        backGround.backGround(backgroundImage, loginPage, 15);
-        Platform.runLater(() -> Center.centerNode(loginForm, loginPage));
+        BackGround.setBackground(backgroundImage, loginPage, "/com/virtanimal/images/background.png", 10);
     }
 
     @FXML
@@ -84,13 +78,12 @@ public class LoginController {
             for (int i = 0; i < userArray.length(); i++) {
                 JSONObject user = userArray.getJSONObject(i);
                 if (user.getString("username").equalsIgnoreCase(username) &&
-                        user.getString("password").equals(password)) {
+                        BCrypt.checkpw(password, user.getString("passwordHash"))){
 
                     int userId = user.getInt("id");
-                    checkAndSetUserManeger(userId); // JSON'da petName boşsa al
+                    checkAndSetUserManager(userId);
 
-                    // UserManager’a yükle
-                    JSONObject pet = getUserManegerById(userId);
+                    JSONObject pet = getUserManagerById(userId);
                     if (pet == null) {
                         showAlert(Alert.AlertType.ERROR, "Pet data not found.");
                         return;
@@ -101,7 +94,6 @@ public class LoginController {
                     UserManagerService.setHunger(pet.getInt("hunger"));
                     UserManagerService.setFun(pet.getInt("fun"));
 
-                    // hello-view.fxml’e geç
                     Parent root = FXMLLoader.load(getClass().getResource("/com/virtanimal/hello-view.fxml"));
                     stage = (Stage)((Node)event.getSource()).getScene().getWindow();
                     scene = new Scene(root);
@@ -119,7 +111,7 @@ public class LoginController {
         }
     }
 
-    private JSONObject getUserManegerById(int userId) throws IOException {
+    private JSONObject getUserManagerById(int userId) throws IOException {
         File file = new File(PET_FILE_PATH);
         if (!file.exists()) return null;
 
@@ -135,7 +127,7 @@ public class LoginController {
         return null;
     }
 
-    private void checkAndSetUserManeger(int userId) throws IOException {
+    private void checkAndSetUserManager(int userId) throws IOException {
         File file = new File(PET_FILE_PATH);
         JSONArray petArray = new JSONArray();
 

@@ -1,55 +1,42 @@
 package com.virtanimal;
 
-import com.utils.Center;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import com.utils.BackGround;
+import com.utils.PasswordUtil;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
 
-import com.utils.BackGround;
-
-import java.io.IOException;
-
-
 public class RegisterController {
-    private Stage stage;
-    private Scene scene;
 
-    public final BackGround backGround = new BackGround();
-
-    @FXML
-    private AnchorPane registerPage;
+    @FXML private AnchorPane registerPage;
     @FXML private ImageView backgroundImage;
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
     @FXML private PasswordField confirmPasswordField;
     @FXML private TextField emailField;
-
     @FXML private VBox registerForm;
 
-    private static final String FILE_PATH = "users.json";
+    private static final String FILE_PATH = "User.json";
+    private Stage stage;
+    private Scene scene;
 
     @FXML
     public void initialize() {
-        backGround.backGround(backgroundImage, registerPage, 15);
-        Platform.runLater(() -> {
-            Center.centerNode(registerForm, registerPage);
-        });
+        BackGround.setBackground(backgroundImage, registerPage, "/com/virtanimal/images/background.png", 10);
     }
 
     @FXML
@@ -60,7 +47,6 @@ public class RegisterController {
         stage.setScene(scene);
         stage.show();
     }
-
 
     @FXML
     public void handleRegister(ActionEvent event) {
@@ -90,13 +76,13 @@ public class RegisterController {
             int maxId = 0;
 
             if (file.exists()) {
-                BufferedReader reader = new BufferedReader(new FileReader(file));
                 StringBuilder sb = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line);
+                try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        sb.append(line);
+                    }
                 }
-                reader.close();
                 userArray = new JSONArray(sb.toString());
 
                 for (int i = 0; i < userArray.length(); i++) {
@@ -118,14 +104,13 @@ public class RegisterController {
             JSONObject newUser = new JSONObject();
             newUser.put("id", newUserId);
             newUser.put("username", username);
-            newUser.put("password", password);
+            newUser.put("passwordHash", PasswordUtil.hashPassword(password));
             newUser.put("email", email);
-
             userArray.put(newUser);
 
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-            writer.write(userArray.toString(2));
-            writer.close();
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                writer.write(userArray.toString(2));
+            }
 
             File petFile = new File("UserManager.json");
             JSONArray petArray = new JSONArray();
@@ -140,12 +125,11 @@ public class RegisterController {
             newPet.put("petName", "");
             newPet.put("hunger", 0);
             newPet.put("fun", 0);
-
             petArray.put(newPet);
 
-            BufferedWriter petWriter = new BufferedWriter(new FileWriter(petFile));
-            petWriter.write(petArray.toString(2));
-            petWriter.close();
+            try (BufferedWriter petWriter = new BufferedWriter(new FileWriter(petFile))) {
+                petWriter.write(petArray.toString(2));
+            }
 
             showAlert(Alert.AlertType.INFORMATION, "Registration successful!");
 
@@ -154,7 +138,6 @@ public class RegisterController {
             showAlert(Alert.AlertType.ERROR, "Error saving user.");
         }
     }
-
 
     private void showAlert(Alert.AlertType type, String message) {
         Alert alert = new Alert(type);

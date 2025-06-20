@@ -1,7 +1,9 @@
 package com.virtanimal;
+
 import com.models.UserManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
@@ -29,14 +31,37 @@ public class UserManagerService {
     public static void saveCurrentUserData() {
         if (currentUserId == -1) return;
 
-        UserManager updated = new UserManager(currentUserId, currentPetName, currentHunger, currentFun);
+        UserManager updated = new UserManager(
+                currentUserId,
+                "default",
+                "hash",
+                "default@example.com",
+                currentPetName,
+                currentHunger,
+                currentFun
+        );
         addOrUpdate(updated);
+    }
+
+    public static UserManager loadCurrentUser() {
+        if (currentUserId == -1) throw new IllegalStateException("No user is currently logged in");
+
+        return new UserManager(
+                currentUserId,
+                "default",
+                "hash",
+                "default@example.com",
+                currentPetName,
+                currentHunger,
+                currentFun
+        );
     }
 
     public static List<UserManager> loadAll() {
         List<UserManager> list = new ArrayList<>();
         File file = new File(FILE_PATH);
         if (!file.exists()) return list;
+
         try {
             String content = new String(Files.readAllBytes(file.toPath()));
             JSONArray arr = new JSONArray(content);
@@ -44,6 +69,9 @@ public class UserManagerService {
                 JSONObject obj = arr.getJSONObject(i);
                 UserManager user = new UserManager(
                         obj.getInt("userId"),
+                        "default",
+                        "hash",
+                        "default@example.com",
                         obj.optString("petName", ""),
                         obj.optInt("hunger", 0),
                         obj.optInt("fun", 0)
@@ -58,7 +86,7 @@ public class UserManagerService {
 
     public static UserManager getByUserId(int userId) {
         return loadAll().stream()
-                .filter(u -> u.userId == userId)
+                .filter(u -> u.getUserId() == userId)
                 .findFirst()
                 .orElse(null);
     }
@@ -67,7 +95,7 @@ public class UserManagerService {
         List<UserManager> all = loadAll();
         boolean updatedFlag = false;
         for (int i = 0; i < all.size(); i++) {
-            if (all.get(i).userId == updated.userId) {
+            if (all.get(i).getUserId() == updated.getUserId()) {
                 all.set(i, updated);
                 updatedFlag = true;
                 break;
@@ -83,10 +111,10 @@ public class UserManagerService {
         JSONArray arr = new JSONArray();
         for (UserManager u : list) {
             JSONObject obj = new JSONObject();
-            obj.put("userId", u.userId);
-            obj.put("petName", u.petName);
-            obj.put("hunger", u.hunger);
-            obj.put("fun", u.fun);
+            obj.put("userId", u.getUserId());
+            obj.put("petName", u.getPetName());
+            obj.put("hunger", u.getHunger());
+            obj.put("fun", u.getFun());
             arr.put(obj);
         }
         try (FileWriter writer = new FileWriter(FILE_PATH)) {
@@ -96,7 +124,6 @@ public class UserManagerService {
         }
     }
 
-    // Pet name kontrolü ve güncelleme
     public static boolean checkAndUpdatePetName(int userId, String newPetName) {
         if (newPetName == null || newPetName.trim().isEmpty()) {
             return false;
@@ -104,10 +131,9 @@ public class UserManagerService {
 
         UserManager user = getByUserId(userId);
         if (user != null) {
-            user.petName = newPetName.trim();
+            user.setPetName(newPetName.trim());
             addOrUpdate(user);
 
-            // Eğer bu current user ise static değişkeni de güncelle
             if (currentUserId == userId) {
                 currentPetName = newPetName.trim();
             }

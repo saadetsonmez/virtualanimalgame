@@ -3,113 +3,62 @@ package com.virtanimal;
 import com.models.UserManager;
 
 public class VirtualPet {
-    private int userId;
-    private String name;
-    private int hunger;
-    private int fun;
+    private UserManager user;
 
-
-    public VirtualPet(int userId, String name, int hunger, int fun) {
-        this.userId = userId;
-        this.name = name;
-        this.hunger = Math.max(0, Math.min(hunger, 100));
-        this.fun = Math.max(0, Math.min(fun, 100));
-    }
-
-
-    public VirtualPet(int userId, String name) {
-        this.userId = userId;
-        this.name = name;
-        this.hunger = 50;
-        this.fun = 50;
-    }
-
-
-    public static VirtualPet loadCurrentUserPet() {
-        int currentUserId = UserManagerService.getCurrentUserId();
-        if (currentUserId == -1) {
-            throw new IllegalStateException("No user is currently logged in");
-        }
-
-        String petName = UserManagerService.getPetName();
-        int hunger = UserManagerService.getHunger();
-        int fun = UserManagerService.getFun();
-
-        return new VirtualPet(currentUserId, petName, hunger, fun);
+    public VirtualPet(UserManager user) {
+        this.user = user;
+        this.user.setHunger(Math.max(0, Math.min(user.getHunger(), 100)));
+        this.user.setFun(Math.max(0, Math.min(user.getFun(), 100)));
     }
 
     public void eat(String foodType) {
         switch (foodType.toLowerCase()) {
-            case "fish":
-                hunger = Math.min(hunger + 25, 100);
-                break;
-            case "bone":
-                hunger = Math.min(hunger + 15, 100);
-                fun = Math.min(fun + 5, 100);
-                break;
-            case "carrot":
-                hunger = Math.min(hunger + 10, 100);
-                break;
-            default:
-                hunger = Math.min(hunger + 10, 100);
+            case "fish" -> user.setHunger(user.getHunger() + 25);
+            case "bone" -> {
+                user.setHunger(user.getHunger() + 15);
+                user.setFun(user.getFun() + 5);
+            }
+            case "carrot" -> user.setHunger(user.getHunger() + 10);
+            default -> user.setHunger(user.getHunger() + 10);
         }
-
-
         saveToJson();
-
-        System.out.println(name + " ate " + foodType + ". Hunger: " + hunger + ", Fun: " + fun);
     }
 
     public void play() {
-        fun = Math.min(fun + 15, 100);
-        hunger = Math.max(hunger - 5, 0);
-
+        user.setFun(user.getFun() + 15);
+        user.setHunger(user.getHunger() - 5);
         saveToJson();
-
-        System.out.println(name + " played! Fun: " + fun + ", Hunger: " + hunger);
     }
 
     public void sleep() {
-        hunger = Math.max(hunger - 10, 0);
-        fun = Math.min(fun + 10, 100);
-
+        user.setFun(user.getFun() + 10);
+        user.setHunger(user.getHunger() - 10);
         saveToJson();
-
-        System.out.println(name + " slept. Hunger: " + hunger + ", Fun: " + fun);
     }
-
 
     public void decay() {
-        hunger = Math.max(hunger - 1, 0);
-        fun = Math.max(fun - 1, 0);
-
+        user.setFun(user.getFun() - 1);
+        user.setHunger(user.getHunger() - 1);
         saveToJson();
-
-        System.out.println("Time passed... " + name + "'s stats decreased. Hunger: " + hunger + ", Fun: " + fun);
-    }
-
-
-    private void saveToJson() {
-        try {
-
-            UserManagerService.setHunger(this.hunger);
-            UserManagerService.setFun(this.fun);
-
-
-            UserManagerService.saveCurrentUserData();
-
-        } catch (Exception e) {
-            System.err.println("Error saving pet data: " + e.getMessage());
-            e.printStackTrace();
-        }
     }
 
     public void forceSave() {
         saveToJson();
-        System.out.println("Pet data saved to JSON!");
+    }
+
+    private void saveToJson() {
+        UserManagerService.setFun(user.getFun());
+        UserManagerService.setHunger(user.getHunger());
+        UserManagerService.setPetName(user.getPetName());
+        UserManagerService.saveCurrentUserData();
+    }
+
+    public boolean isInDanger() {
+        return user.getHunger() < 20 || user.getFun() < 20;
     }
 
     public String getMood() {
+        int fun = user.getFun();
         if (fun > 80) return "Excited 🎉";
         if (fun > 60) return "Happy 😊";
         if (fun > 40) return "Okay 😐";
@@ -120,10 +69,11 @@ public class VirtualPet {
     public String getOverallStatus() {
         String mood = getMood();
         String hungerStatus = getHungerStatus();
-        return String.format("%s is %s and %s", name, mood.toLowerCase(), hungerStatus);
+        return String.format("%s is %s and %s", user.getPetName(), mood.toLowerCase(), hungerStatus);
     }
 
     private String getHungerStatus() {
+        int hunger = user.getHunger();
         if (hunger > 80) return "well-fed 🍽️";
         if (hunger > 60) return "satisfied 😋";
         if (hunger > 40) return "a bit hungry 🤤";
@@ -131,50 +81,39 @@ public class VirtualPet {
         return "starving 😰";
     }
 
-    public boolean isInDanger() {
-        return hunger < 20 || fun < 20;
+    public String getDetailedStatus() {
+        return String.format(
+                "Pet Information:\n\n" +
+                        "Name: %s\n" +
+                        "User ID: %d\n" +
+                        "Hunger: %d/100\n" +
+                        "Fun: %d/100\n" +
+                        "Mood: %s\n\n" +
+                        "Overall Status: %s",
+                getName(),
+                getUserId(),
+                getHunger(),
+                getFun(),
+                getMood(),
+                getOverallStatus()
+        );
     }
 
-    public String getWarningMessage() {
-        if (hunger < 10 && fun < 10) {
-            return name + " is both starving and very unhappy! Please take care of them! 🚨";
-        } else if (hunger < 10) {
-            return name + " is starving! Please feed them! 🍽️";
-        } else if (fun < 10) {
-            return name + " is very sad! Please play with them! 🎮";
-        } else if (hunger < 20) {
-            return name + " is getting hungry 🤤";
-        } else if (fun < 20) {
-            return name + " is getting bored 😕";
-        }
-        return "";
-    }
+    public int getHunger() { return user.getHunger(); }
+    public int getFun() { return user.getFun(); }
+    public String getName() { return user.getPetName(); }
+    public int getUserId() { return user.getUserId(); }
 
-
-    public int getHunger() { return hunger; }
-    public int getFun() { return fun; }
-    public String getName() { return name; }
-    public int getUserId() { return userId; }
-
-
-    public void setHunger(int hunger) {
-        this.hunger = Math.max(0, Math.min(hunger, 100));
-    }
-
-    public void setFun(int fun) {
-        this.fun = Math.max(0, Math.min(fun, 100));
-    }
-
+    public void setHunger(int h) { user.setHunger(h); }
+    public void setFun(int f) { user.setFun(f); }
     public void setName(String name) {
-        this.name = name;
-
-        UserManagerService.setPetName(name);
-        UserManagerService.saveCurrentUserData();
+        user.setPetName(name);
+        saveToJson();
     }
 
     @Override
     public String toString() {
         return String.format("Pet{name='%s', userId=%d, hunger=%d, fun=%d, mood='%s'}",
-                name, userId, hunger, fun, getMood());
+                getName(), getUserId(), getHunger(), getFun(), getMood());
     }
 }

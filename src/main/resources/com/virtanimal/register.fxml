@@ -4,18 +4,17 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 
-
 <AnchorPane fx:id="registerPage"
-            prefWidth="854.0" prefHeight="569.0"
             xmlns="http://javafx.com/javafx/17.0.12"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.virtanimal.RegisterController">
+            fx:controller="com.virtanimal.RegisterController"
+            prefWidth="500" prefHeight="500"
+            stylesheets="style.css">
 
     <ImageView fx:id="backgroundImage"
-               fitWidth="854.0" fitHeight="569.0"
+               fitWidth="500.0" fitHeight="500.0"
                layoutX="0.0" layoutY="0.0"
-               preserveRatio="false"
-               pickOnBounds="true" />
+               preserveRatio="false" />
 
     <Button fx:id="regbackbtn"
             text="←"
@@ -25,41 +24,33 @@
             prefHeight="30.0" prefWidth="40.0"
             styleClass="startpage-btn" />
 
-    <VBox fx:id="registerForm" alignment="CENTER"
+    <VBox fx:id="registerForm"
+          alignment="CENTER"
           spacing="15.0"
           prefWidth="400.0" prefHeight="390.0"
-          AnchorPane.leftAnchor="227.0"
-          AnchorPane.topAnchor="89.0"
-          style="-fx-background-color: rgba(255,255,255,0.85); -fx-background-radius: 15; -fx-padding: 25;">
-
-
+          AnchorPane.leftAnchor="50.0"
+          AnchorPane.topAnchor="55.0">
 
         <Label text="Register Form" styleClass="label-title"/>
 
         <TextField fx:id="usernameField"
                    promptText="Username"
-                   maxWidth="300.0"
                    styleClass="text-field"/>
 
         <TextField fx:id="emailField"
                    promptText="E-Mail"
-                   maxWidth="300.0"
                    styleClass="text-field"/>
 
         <PasswordField fx:id="passwordField"
                        promptText="Password"
-                       maxWidth="300.0"
                        styleClass="password-field"/>
 
         <PasswordField fx:id="confirmPasswordField"
                        promptText="Confirm Password"
-                       maxWidth="300.0"
                        styleClass="password-field"/>
 
         <Button text="Register"
                 onAction="#handleRegister"
-                styleClass="startpage-btn"
-                prefWidth="150"/>
-
+                styleClass="startpage-btn"/>
     </VBox>
 </AnchorPane>

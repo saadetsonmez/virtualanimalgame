@@ -2,6 +2,13 @@
     -fx-background-color: #b0aac1;
 }
 
+#loginForm {
+    -fx-alignment: center;
+    -fx-spacing: 15px;
+    -fx-background-color: rgba(255, 255, 255, 0.85);
+    -fx-background-radius: 15;
+    -fx-padding: 25;
+}
 .label {
     -fx-font-size: 16px;
     -fx-font-weight: bold;
@@ -63,14 +70,3 @@
     -fx-cursor: hand;
 }
 
-
-VBox[alignment="CENTER_LEFT"],
-VBox[alignment="CENTER_RIGHT"] {
-    -fx-padding: 10;
-    -fx-spacing: 10;
-}
-
-VBox[alignment="BOTTOM_CENTER"] {
-    -fx-padding: 20;
-    -fx-spacing: 10;
-}
